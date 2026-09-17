@@ -1,0 +1,92 @@
+{
+  "feature_names": [
+    "sbert_similarity",
+    "jaccard_skills",
+    "keyword_match_ratio"
+  ],
+  "label_weights": {
+    "sbert_similarity": 0.35,
+    "jaccard_skills": 0.4,
+    "keyword_match_ratio": 0.25
+  },
+  "sbert_model_name": "all-MiniLM-L6-v2",
+  "score_threshold": 60,
+  "skill_keywords": {
+    "programming": [
+      "python",
+      "java",
+      "c++",
+      "c#",
+      "javascript",
+      "typescript",
+      "r",
+      "scala",
+      "go",
+      "rust",
+      "kotlin",
+      "swift",
+      "php",
+      "bash"
+    ],
+    "ml_ai": [
+      "machine learning",
+      "deep learning",
+      "nlp",
+      "computer vision",
+      "reinforcement learning",
+      "tensorflow",
+      "pytorch",
+      "keras",
+      "scikit-learn",
+      "xgboost",
+      "lightgbm",
+      "huggingface",
+      "transformers",
+      "bert",
+      "llm",
+      "rag"
+    ],
+    "data": [
+      "sql",
+      "mysql",
+      "postgresql",
+      "mongodb",
+      "spark",
+      "hadoop",
+      "kafka",
+      "airflow",
+      "dbt",
+      "etl",
+      "pandas",
+      "numpy",
+      "tableau",
+      "power bi",
+      "excel",
+      "bigquery",
+      "snowflake"
+    ],
+    "cloud_devops": [
+      "aws",
+      "azure",
+      "gcp",
+      "docker",
+      "kubernetes",
+      "ci/cd",
+      "git",
+      "github",
+      "terraform",
+      "jenkins",
+      "linux",
+      "mlflow"
+    ],
+    "soft_skills": [
+      "communication",
+      "leadership",
+      "teamwork",
+      "agile",
+      "scrum",
+      "project management",
+      "analytical"
+    ]
+  }
+}
