@@ -1,147 +1,106 @@
-# 🤖 ATS Resume Screener
+# 🎯 ATS Resume Screener & Optimizer
 
-An AI-powered resume screening tool that automatically evaluates resumes against job descriptions using NLP techniques — TF-IDF keyword matching, Named Entity Recognition (NER), and semantic similarity scoring.
+An AI-powered tool that compares a **resume with a Job Description (JD)** and gives an ATS-style score, shows skill/keyword matching, and provides suggestions to improve the resume.
 
----
+### 💡 Simple idea
 
-## 📌 Overview
+Think of the system as a **first-round resume filter**.
 
-Hiring teams spend a significant chunk of time manually filtering resumes. This project automates that process by scoring resumes based on how well they match a given job description, surfacing the most relevant candidates quickly and objectively.
+Instead of only asking *"Does this resume look similar to the job description?"*, it checks:
 
----
+- 🧠 **Semantic similarity** — Does the resume talk about similar things?
+- 🛠️ **Skill overlap** — Does it contain the required skills?
+- 🔑 **Keyword matching** — Are important JD terms present?
+- 📊 **XGBoost** — Combines these signals into an initial score.
+- ⚡ **Adaptive skill penalty** — Reduces the score when required skills are missing.
+- ✨ **Gemini** — Generates actionable resume improvement suggestions.
 
-## ✨ Features
+## 🔄 Workflow
 
-- **TF-IDF Keyword Matching** — Extracts and weights important terms from job descriptions and resumes to compute relevance scores
-- **Named Entity Recognition (NER)** — Identifies key entities like skills, tools, degrees, and institutions using spaCy
-- **Semantic Similarity** — Goes beyond keyword overlap by comparing contextual meaning using sentence embeddings
-- **Composite Scoring** — Combines all three signals into a single ranked score per resume
-- **Batch Processing** — Screen multiple resumes against a single JD in one run
-
----
-
-## 🗂️ Project Structure
-
-```
-ats-resume-screener/
-│
-├── data/
-│   ├── resumes/              # Input resumes (PDF or plain text)
-│   └── job_descriptions/     # JD files for screening
-│
-├── src/
-│   ├── preprocessor.py       # Text cleaning and extraction
-│   ├── tfidf_scorer.py       # TF-IDF vectorization and scoring
-│   ├── ner_extractor.py      # Entity extraction via spaCy
-│   ├── semantic_scorer.py    # Sentence embedding similarity
-│   └── ranker.py             # Final composite scoring and ranking
-│
-├── outputs/
-│   └── results.csv           # Ranked results with individual scores
-│
-├── main.py                   # Entry point
-├── requirements.txt
-└── README.md
+```text
+Resume + Job Description
+          ↓
+     Text Extraction
+          ↓
+     Feature Extraction
+   ┌──────┼─────────────┐
+   ↓      ↓             ↓
+ SBERT  Skill Match  Keywords
+   └──────┼─────────────┘
+          ↓
+       XGBoost
+          ↓
+  Adaptive Skill Penalty
+          ↓
+     Final ATS Score
+          ↓
+   Gemini Suggestions
 ```
 
----
+## 🧠 Model
+
+The XGBoost regression model was trained on **1,600 synthetic resume–JD pairs** using a skill-aware labeling strategy.
+
+The main features are:
+
+| Feature | Purpose |
+|---|---|
+| SBERT Similarity | Measures semantic similarity between resume and JD |
+| Jaccard Skill Overlap | Measures overlap between required and detected skills |
+| Keyword Match Ratio | Measures direct keyword coverage |
+
+The final score is reported on a **0–100 scale**.
+
+## 📊 Example Result
+
+The following result is from the included final project output.
+
+![ATS Resume Screener Result](Outputs/ats_result_page_1.png)
+
+**Result from the example above:**
+
+- **Final ATS Score:** 73.7 / 100
+- **Semantic Similarity:** 0.59
+- **Skill Overlap:** 1.00
+- **Keyword Match:** 0.30
+- **Missing JD Skills:** 0 / 2
+- **Matched Skills:** Machine Learning, Python
+
+The system classified this example as a **Moderate Match**. Importantly, all detected JD skills were present, while the lower keyword-match value shows that semantic/skill matching and exact keyword coverage can provide different signals.
+
+### 🔍 Skill Gap Analysis
+
+![Skill Gap Analysis](Outputs/ats_result_page_2.png)
+
+In this example, the system detected **2 matching skills and no missing skills**, and therefore did not recommend improvements for the resume.
 
 ## 🛠️ Tech Stack
 
-| Component | Library / Tool |
-|---|---|
-| Text Preprocessing | `NLTK`, `re` |
-| TF-IDF Scoring | `scikit-learn` |
-| Named Entity Recognition | `spaCy` (`en_core_web_sm`) |
-| Semantic Similarity | `sentence-transformers` (`all-MiniLM-L6-v2`) |
-| PDF Parsing | `PyMuPDF` / `pdfminer` |
-| Data Handling | `pandas` |
+**Python · NLP · SBERT · XGBoost · Gemini API · NumPy · Scikit-learn**
 
----
+## 📁 Repository Structure
 
-## ⚙️ Setup & Installation
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/your-username/ats-resume-screener.git
-cd ats-resume-screener
+```text
+├── Outputs/                   # Final result screenshots/outputs
+├── models/                    # Trained ML models
+├── app.py                     # Application
+├── ats_pipeline_notebook.ipynb # Model development pipeline
+├── ATS Resume Screener.pdf   # Final project results
+├── README.md
+└── LICENSE
 ```
 
-**2. Create a virtual environment**
-```bash
-python -m venv venv
-source venv/bin/activate        # On Windows: venv\Scripts\activate
-```
+## ▶️ Run the Project
 
-**3. Install dependencies**
 ```bash
 pip install -r requirements.txt
+streamlit run app.py
 ```
 
-**4. Download spaCy language model**
-```bash
-python -m spacy download en_core_web_sm
-```
+Then upload/paste a resume, add a Job Description, and click **Analyze Resume**.
 
----
+## 🎯 Key Takeaway
 
-## 🚀 Usage
+This project combines **NLP + Machine Learning + Generative AI** to make resume screening more than just a single similarity score.
 
-Place your resumes in `data/resumes/` and your job description in `data/job_descriptions/`.
-
-```bash
-python main.py --jd data/job_descriptions/ml_engineer.txt --resumes data/resumes/
-```
-
-**Output** — a ranked CSV at `outputs/results.csv`:
-
-| Resume | TF-IDF Score | NER Score | Semantic Score | Final Score |
-|---|---|---|---|---|
-| candidate_a.pdf | 0.82 | 0.75 | 0.88 | 0.83 |
-| candidate_b.pdf | 0.61 | 0.70 | 0.65 | 0.65 |
-
----
-
-## 📊 Scoring Methodology
-
-The final score is a weighted combination of three signals:
-
-```
-Final Score = 0.4 × TF-IDF + 0.3 × NER Match + 0.3 × Semantic Similarity
-```
-
-- **TF-IDF** captures keyword relevance between the JD and resume
-- **NER Match** measures overlap in entities like skills, tools, and qualifications
-- **Semantic Similarity** captures contextual alignment using sentence embeddings, handling synonyms and paraphrasing that keyword matching misses
-
----
-
-## 📈 Example Results
-
-Tested on a set of 20 resumes for a Data Engineer JD:
-
-- Top-3 candidates surfaced had an average manual relevance rating of **4.6 / 5**
-- Screening time reduced from ~40 minutes to under **30 seconds**
-
----
-
-## 🔮 Future Improvements
-
-- [ ] Add a Streamlit web interface for non-technical users
-- [ ] Support DOCX resume formats
-- [ ] Fine-tune NER model on a domain-specific resume dataset
-- [ ] Add bias detection module to flag potentially discriminatory filtering
-- [ ] REST API endpoint for integration with HR tools
-
----
-
-## 👤 Author
-
-**Nem Desai**  
-B.Tech ECE + Minor in Data Science | Nirma University, Ahmedabad  
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+> **In short:** it tells you **how well your resume matches a job, what skills are covered or missing, and how you can improve it.**
